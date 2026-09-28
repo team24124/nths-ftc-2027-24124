@@ -1,54 +1,47 @@
 package org.firstinspires.ftc.teamcode.opmode.teleop;
 
-import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Vector2d;
+import static com.pedropathing.api.Paths.line;
+import static com.pedropathing.ivy.pedro.PedroCommands.follow;
+
+import com.pedropathing.ivy.Command;
+import com.pedropathing.math.Pose;
 
 import org.firstinspires.ftc.teamcode.hardware.subsystems.Drivetrain;
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
 public enum TeleOpTrajectories {
     INSTANCE;
 
     // Aligns by strafing
-    public Action vectorAlign(Drivetrain drivetrain, Vector2d targetPose) {
-        return drivetrain.getDrivetrain().follow()
+    public Command vectorAlign(Drivetrain drivetrain, Pose targetPose) {
+        Pose start = drivetrain.getPosition();
+        return follow(drivetrain.getDrivetrain(), line(start, targetPose).linear(start, start));
     }
 
     // Aligns by strafing and turning
-    public Action poseAlign(MecanumDrive drivetrain, Pose2d targetPose) {
-        return drivetrain.actionBuilder(drivetrain.localizer.getPose(), true)
-                .strafeToSplineHeading(new Vector2d(targetPose.position.x, targetPose.position.y), targetPose.heading.toDouble()) // 0 to face directly into target
-                .build();
+    public Command poseAlign(Drivetrain drivetrain, Pose targetPose) {
+        Pose start = drivetrain.getPosition();
+        return follow(drivetrain.getDrivetrain(), line(start, targetPose).linear(start, targetPose));
     }
 
-    // Returns angle to target [-pi (left facing error), pi (right facing error)]
+    // Returns angle to target [-pi (left facing error), +pi (right facing error)]
     public double theta(Drivetrain drivetrain, double targetX, double targetY) {
-        double heading = (drivetrain.getHeading() + Math.PI/2) % (Math.PI*2);
+        double heading = drivetrain.getPosition().heading();
         double botX = drivetrain.getPosition().x();
         double botY = drivetrain.getPosition().y();
 
-        double theta = Math.atan2(targetX - botX, -targetY + botY); // Similar to (y, x) -> x is vertical, y is lateral +left (reversed to accommodate atan2)
-        if (theta < 0) theta += Math.PI*2;
+        double target = Math.atan2(targetY - botY, targetX - botX);
 
-        if ((heading - theta) > Math.PI) {
-            return -Math.PI + ((heading - theta) % Math.PI);
-        }
-        if (Math.abs(heading - theta) > Math.PI) {
-            return Math.PI + ((heading - theta) % Math.PI);
-        }
+        double diff = heading - target;
 
-        return heading - theta;
+        return Math.atan2(Math.sin(diff), Math.cos(diff));
     }
+
 
     // Returns distance to target in inches
     public double distanceToTarget(Drivetrain drivetrain, double targetX, double targetY) {
-        double botX = drivetrain.getPosition().position.x;
-        double botY = drivetrain.getPosition().position.y;
+        double dx = targetX - drivetrain.getPosition().x();
+        double dy = targetY - drivetrain.getPosition().y();
 
-        botX = Math.abs(botX - targetX);
-        botY = Math.abs(botY - targetY);
-
-        return Math.hypot(botX, botY);
+        return Math.hypot(dx, dy);
     }
 }

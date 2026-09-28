@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.teamcode.hardware.subsystems;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.Action;
+import com.pedropathing.ivy.Command;
+import com.pedropathing.ivy.behaviors.ConflictBehavior;
+import com.pedropathing.ivy.behaviors.InterruptedBehavior;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -56,29 +58,17 @@ public class Flywheel implements SubsystemBase, TelemetryObservable {
         }
     }
 
-    public Action autonPeriodic() {
-        return (TelemetryPacket packet) -> {
-            periodic();
-
-            return true;
-        };
+    public Command autonPeriodic() {
+        return Command.build()
+                .setExecute(this::periodic);
     }
 
-    public Action runFlywheel() {
-        return (TelemetryPacket packet) -> {
-            powered = true;
-
-            return false;
-        };
+    public Command runFlywheel() {
+        return Command.build().setStart(() -> powered = true);
     }
 
-    public Action stopFlywheel() {
-        return (TelemetryPacket packet) -> {
-            powered = false;
-            primed = false;
-
-            return false;
-        };
+    public Command stopFlywheel() {
+        return Command.build().setStart(() -> {powered = false; primed = false;});
     }
 
     public void power(double vel) {
@@ -86,11 +76,8 @@ public class Flywheel implements SubsystemBase, TelemetryObservable {
         wheel.setPower(power);
     }
 
-    public Action setVls(double d) {
-        return (TelemetryPacket packet) -> {
-            distance = d;
-            return false;
-        };
+    public Command setVls(double d) {
+        return Command.build().setStart(() -> distance = d);
     }
 
     public void setVelPID(double Kp, double Kv) {

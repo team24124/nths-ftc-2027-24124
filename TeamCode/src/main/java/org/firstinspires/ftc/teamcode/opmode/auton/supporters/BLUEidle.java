@@ -23,10 +23,10 @@ import org.firstinspires.ftc.teamcode.util.PoseStorage;
 public class BLUEidle extends OpMode {
     Robot robot;
     private Follower follower;
-    private final PoseFactory poseFactory = PoseFactory.degrees();
+    private final PoseFactory poseFactory = PoseFactory.radians();
     private final Pose startPose = poseFactory.of(24, 24, 0);
-    private final Pose scorePose = poseFactory.of(48, 48, 90);
-    private final Pose parkPose = poseFactory.of(72, 48, 90);
+    private final Pose scorePose = poseFactory.of(48, 48, Math.toRadians(90));
+    private final Pose parkPose = poseFactory.of(72, 48, Math.toRadians(90));
 
     private Path startToScore() {
         return through(startPose, scorePose, parkPose).linear(startPose, parkPose);
@@ -46,7 +46,7 @@ public class BLUEidle extends OpMode {
 
     @Override
     public void init() {
-        robot = new Robot(hardwareMap, telemetry, true);
+        robot = new Robot(hardwareMap, telemetry);
         Scheduler.reset();
 
         follower = Constants.create(hardwareMap);

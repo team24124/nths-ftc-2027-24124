@@ -1,10 +1,11 @@
 package org.firstinspires.ftc.teamcode.opmode.debug.test;
 
+import static com.pedropathing.ivy.Scheduler.schedule;
+
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Vector2d;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
+import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.math.Pose;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -19,8 +20,6 @@ import java.util.List;
 @Config
 @TeleOp(name = "Trajectories", group = "test")
 public class TrajectoryDebugger extends OpMode {
-    public static boolean robotCentric = true;
-    private boolean state = true;
     private Drivetrain drivetrain;
     private GamepadEx driver;
     private TeleOpTrajectories trajectories;
@@ -39,6 +38,7 @@ public class TrajectoryDebugger extends OpMode {
         drivetrain = new Drivetrain(hardwareMap, new Pose(0, 0, 0));
         trajectories = TeleOpTrajectories.INSTANCE;
         driver = new GamepadEx(gamepad1);
+        Scheduler.reset();
     }
 
     @Override
@@ -52,12 +52,12 @@ public class TrajectoryDebugger extends OpMode {
         double rx = driver.getRightX();
 
         if (driver.wasJustPressed(GamepadKeys.Button.LEFT_BUMPER)) {
-            Vector2d targetPose = new Vector2d(xPos, yPos);
-            actions.schedule(trajectories.vectorAlign(drivetrain.getDrive(), targetPose));
+            Pose targetPose = new Pose(xPos, yPos, heading);
+            schedule(trajectories.vectorAlign(drivetrain, targetPose));
         }
         if (driver.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER)) {
-            Pose2d targetPose = new Pose2d(xPos, yPos, heading);
-            actions.schedule(trajectories.poseAlign(drivetrain.getDrive(), targetPose));
+            Pose targetPose = new Pose(xPos, yPos, heading);
+            schedule(trajectories.poseAlign(drivetrain, targetPose));
         }
 
         // Adjust x and y
@@ -77,24 +77,19 @@ public class TrajectoryDebugger extends OpMode {
             heading -= 0.04;
         }
 
-        if (driver.wasJustPressed(GamepadKeys.Button.B) && state != robotCentric) {
-            switchDrive();
-            state = robotCentric;
-        }
-
-        if (!drivetrain.getDrive().isBusy) {
+        if (!drivetrain.getDrivetrain().isBusy()) {
             drivetrain.drive(x, y, rx, false);
         }
         drivetrain.periodic();
 
         driver.readButtons();
 
-        actions.run();
+        Scheduler.execute();
 
-        telemetry.addData("\nBusy", drivetrain.getDrive().isBusy);
-        telemetry.addData("\nX", "%.1f", drivetrain.getPosition().component1().x);
-        telemetry.addData("Y", "%.1f", drivetrain.getPosition().component1().y);
-        telemetry.addData("\nHeading", "%.1f", drivetrain.getPosition().heading.toDouble());
+        telemetry.addData("\nBusy", drivetrain.getDrivetrain().isBusy());
+        telemetry.addData("\nX", "%.1f", drivetrain.getPosition().x());
+        telemetry.addData("Y", "%.1f", drivetrain.getPosition().y());
+        telemetry.addData("\nHeading", "%.1f", drivetrain.getPosition().heading());
         telemetry.addData("\nStored Pose", PoseStorage.currentPose.toString());
 
         telemetry.addData("\n\nTargeted X", xPos);
@@ -105,10 +100,5 @@ public class TrajectoryDebugger extends OpMode {
         telemetry.addData("\nAngle to (0, 0)", Math.toDegrees(trajectories.theta(drivetrain, 0, 0)));
 
         telemetry.update();
-    }
-
-    @Override
-    public void stop() {
-        actions.stop();
     }
 }

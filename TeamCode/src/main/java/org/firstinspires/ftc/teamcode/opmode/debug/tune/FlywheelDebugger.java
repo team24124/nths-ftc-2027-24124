@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
+import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.math.Pose;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -24,7 +25,6 @@ public class FlywheelDebugger extends OpMode {
     private List<LynxModule> hubs;
     private Flywheel flywheel;
     private Drivetrain drivetrain;
-    private ActionScheduler actions;
     private TelemetryControl telemetryControl;
     private TeleOpTrajectories trajectories;
     public static double Kp = 0.004;
@@ -38,12 +38,11 @@ public class FlywheelDebugger extends OpMode {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
         }
 
-        actions = ActionScheduler.INSTANCE;
-        actions.init();
+        Scheduler.reset();
         driver = new GamepadEx(gamepad1);
         flywheel = new Flywheel(hardwareMap);
         telemetryControl = new TelemetryControl(telemetry);
-        drivetrain = new Drivetrain(hardwareMap, new Pose(0, 0, 0)); // Start robot at the center of the field
+        drivetrain = new Drivetrain(hardwareMap, new Pose(0, 0, 0)); // Start robot at the center of the field facing +X
         telemetryControl.subscribe(flywheel).subscribe(drivetrain);
         trajectories = TeleOpTrajectories.INSTANCE;
     }
@@ -61,10 +60,10 @@ public class FlywheelDebugger extends OpMode {
         flywheel.setVelPID(Kp, Kv);
 
         if (driver.wasJustPressed(GamepadKeys.Button.A)) {
-            actions.schedule(flywheel.runFlywheel());
+            Scheduler.schedule(flywheel.runFlywheel());
         }
         if (driver.wasJustPressed(GamepadKeys.Button.B)) {
-            actions.schedule(flywheel.stopFlywheel());
+            Scheduler.schedule(flywheel.stopFlywheel());
         }
 
         if (Utilities.isBetween(flywheel.wheel.getVelocity(), velocity - 50, velocity + 50)) {
@@ -80,11 +79,11 @@ public class FlywheelDebugger extends OpMode {
         }
 
         drivetrain.drive(x, y, rx, false);
-        telemetryControl.getTelemetry().addData("Distance", trajectories.distanceToTarget(drivetrain, true));
+        telemetryControl.getTelemetry().addData("Distance", trajectories.distanceToTarget(drivetrain, 14, 15));
         telemetryControl.getTelemetry().addData("vel", velocity);
         driver.readButtons();
         drivetrain.periodic();
-        actions.run();
+        Scheduler.execute();
         telemetryControl.update();
     }
 }

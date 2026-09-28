@@ -5,6 +5,7 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
+import com.pedropathing.math.Pose;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -29,8 +30,8 @@ public class PDAlignmentDebugger extends OpMode {
     public static double Kp = 7;
     public static double Kd = 0.7;
     public static double sf = 0.7;
-    public static double targetX = 72;
-    public static double targetY = -72;
+    public static double targetX = 14;
+    public static double targetY = 15;
 
     // --- PD ---
     private boolean alignToAT = false;
@@ -44,7 +45,7 @@ public class PDAlignmentDebugger extends OpMode {
         }
 
         voltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
-        drivetrain = new FieldCentricDrive(hardwareMap, new Pose2d(new Vector2d(0, 0), Math.toRadians(0)));
+        drivetrain = new Drivetrain(hardwareMap, new Pose(0, 0, 0));
         trajectories = TeleOpTrajectories.INSTANCE;
         driver = new GamepadEx(gamepad1);
     }
@@ -66,8 +67,8 @@ public class PDAlignmentDebugger extends OpMode {
         }
 
         if (driver.wasJustPressed(GamepadKeys.Button.START)) {
-            Vector2d current = drivetrain.getDrive().localizer.getPose().position;
-            drivetrain.getDrive().localizer.setPose(new Pose2d(current, 0));
+            Pose current = drivetrain.getPosition();
+            drivetrain.getDrivetrain().setPose(new Pose(current.x(), current.y(), 0));
         }
 
         if (alignToAT) {
@@ -81,9 +82,9 @@ public class PDAlignmentDebugger extends OpMode {
         driver.readButtons();
 
         telemetry.addData("\nAlign", alignToAT);
-        telemetry.addData("\nX", "%.1f", drivetrain.getPosition().component1().x);
-        telemetry.addData("Y", "%.1f", drivetrain.getPosition().component1().y);
-        telemetry.addData("\nHeading", "%.1f", drivetrain.getPosition().heading.toDouble());
+        telemetry.addData("\nX", "%.1f", drivetrain.getPosition().x());
+        telemetry.addData("Y", "%.1f", drivetrain.getPosition().y());
+        telemetry.addData("\nHeading", "%.1f", drivetrain.getPosition().heading());
         telemetry.addData("\nTheta to target", "%.2f", trajectories.theta(drivetrain, targetX, targetY));
         telemetry.update();
     }

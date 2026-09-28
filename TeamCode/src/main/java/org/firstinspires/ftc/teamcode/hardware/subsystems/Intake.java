@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.hardware.subsystems;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.Action;
+import com.pedropathing.ivy.Command;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -21,34 +21,28 @@ public class Intake implements SubsystemBase, TelemetryObservable {
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
-    public Action runIntake() {
-        return (TelemetryPacket packet) -> {
+    public Command runIntake() {
+        return Command.build().setStart(() -> {
             targetVel = -((double) 1150/60)*360; // 6900 degrees per second
             intake.setVelocity(targetVel * (145.1/360)); // Degree to tick conversion
             powered = true;
-
-            return false;
-        };
+        });
     }
 
-    public Action reverseIntake() {
-        return (TelemetryPacket packet) -> {
+    public Command reverseIntake() {
+        return Command.build().setStart(() -> {
             targetVel = ((double) 1150/60)*180; // 3450 degrees per second
             intake.setVelocity(targetVel * (145.1/360)); // Degree to tick conversion
             powered = true;
-
-            return false;
-        };
+        });
     }
 
-    public Action stopIntake() {
-        return (TelemetryPacket packet) -> {
+    public Command stopIntake() {
+        return Command.build().setStart(() -> {
             targetVel = 0;
             intake.setVelocity(0);
             powered = false;
-
-            return false;
-        };
+        });
     }
 
     public double velocity() {

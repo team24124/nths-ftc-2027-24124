@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmode.teleop;
 
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
+import com.pedropathing.ivy.Scheduler;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
@@ -18,6 +19,9 @@ public class TeleOp extends OpMode {
     private GamepadEx driver, operator;
     private TeleOpTrajectories trajectories;
     private boolean alignToAT = false;
+    private boolean notified = false;
+    private final double targetX = PoseStorage.currentAlliance == PoseStorage.Alliance.BLUE ? 14 : -14;
+    private double targetY = 14;
 
     @Override
     public void init() {
@@ -30,8 +34,7 @@ public class TeleOp extends OpMode {
         trajectories = TeleOpTrajectories.INSTANCE;
         driver = new GamepadEx(gamepad1);
         operator = new GamepadEx(gamepad2);
-        robot = new Robot(hardwareMap, telemetry, false);
-        robot.actions.init();
+        robot = new Robot(hardwareMap, telemetry);
 
         if (PoseStorage.currentAlliance == PoseStorage.Alliance.RED) {
             robot.limelight.setPipeline(Limelight.Pipeline.AT3);
@@ -46,7 +49,8 @@ public class TeleOp extends OpMode {
             hub.clearBulkCache();
         }
 
-        // --------- Driver inputs ---------
+        // --------- DRIVER INPUTS ---------
+
         double x = -driver.getLeftY();
         double y = driver.getLeftX();
         if (PoseStorage.currentAlliance == PoseStorage.Alliance.RED) {
@@ -63,67 +67,72 @@ public class TeleOp extends OpMode {
             alignToAT = !alignToAT;
         }
 
-        // USE THESE
-        driver.gamepad.rumbleBlips(3);
-        driver.gamepad.rumble(1.0, 1.0, 3);
-
-        boolean align0 = driver.isDown(GamepadKeys.Button.B);
-        if (align0) {
-            alignToAT = false;
-            robot.drivetrain.drive(x, y, robot.drivetrain.getHeading(), true);
-        }
-
         if (driver.isDown(GamepadKeys.Button.RIGHT_BUMPER)) {
-
+            Scheduler.schedule(robot.intake.runIntake());
+        } else if (driver.isDown(GamepadKeys.Button.LEFT_BUMPER)) {
+            Scheduler.schedule(robot.intake.reverseIntake());
+        } else {
+            Scheduler.schedule(robot.intake.stopIntake());
         }
 
-        // --------- Operator inputs ---------
-        if (operator.wasJustPressed(GamepadKeys.Button.B)) {
+        // --------- OPERATOR INPUTS ---------
 
+        if (operator.wasJustPressed(GamepadKeys.Button.B)) {
+            Scheduler.schedule(robot.flywheel.runFlywheel());
+            driver.gamepad.rumble(200);
+            notified = false;
         }
 
         if (operator.wasJustPressed(GamepadKeys.Button.A)) {
-
+            Scheduler.schedule(robot.flywheel.stopFlywheel());
+            driver.gamepad.rumble(200);
+            notified = false;
         }
 
         if (operator.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER)) {
-
+            if (robot.flywheel.primed) {
+                Scheduler.schedule();
+            }
         }
 
-        // --- Periodic calls ---
+        if (robot.flywheel.primed && !notified) {
+            operator.gamepad.rumbleBlips(3);
+            driver.gamepad.rumbleBlips(3);
+            notified = true;
+        }
+
+        if (operator.wasJustPressed(GamepadKeys.Button.Y)) {
+            targetY = -targetY;
+        }
+
+        // --- PERIODIC CALLS ---
+
         driver.readButtons();
         operator.readButtons();
 
+        robot.flywheel.periodic();
         robot.drivetrain.periodic();
+
         if (!robot.drivetrain.getDrivetrain().isBusy()) {
             if (alignToAT) {
                 if (robot.limelight.isDetected()) {
                     robot.drivetrain.drive(x, y, Math.toRadians(robot.limelight.degreeOffset()), true);
                 } else {
-                    if (PoseStorage.currentAlliance == PoseStorage.Alliance.RED) {
-                        robot.drivetrain.drive(x, y, trajectories.theta(robot.drivetrain, 72, -72), true);
-                    } else {
-                        robot.drivetrain.drive(x, y, trajectories.theta(robot.drivetrain, 72, 72), true);
-                    }
+                    robot.drivetrain.drive(x, y, trajectories.theta(robot.drivetrain, targetX, targetY), true);
                 }
-            } else if (!align0){
+            } else {
                 robot.drivetrain.drive(x, y, rx, false);
             }
         }
 
-        double d;
-        if (PoseStorage.currentAlliance == PoseStorage.Alliance.RED) {
-            d = trajectories.distanceToTarget(robot.drivetrain, 72, -72);
-        } else {
-            d = trajectories.distanceToTarget(robot.drivetrain, 72, 72);
-        }
+        double d = trajectories.distanceToTarget(robot.drivetrain, targetX, targetY);
+        Scheduler.schedule(robot.flywheel.setVls(d));
 
-        robot.actions.run();
+        Scheduler.execute();
     }
 
     @Override
     public void stop() {
         robot.telemetryControl.unsubscribeAll();
-        robot.actions.stop();
     }
 }

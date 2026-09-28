@@ -17,7 +17,7 @@ public class Robot {
     public Limelight limelight;
     public TelemetryControl telemetryControl;
 
-    public Robot(HardwareMap hw, Telemetry telemetry, boolean robotCentric) {
+    public Robot(HardwareMap hw, Telemetry telemetry) {
         intake = new Intake(hw);
         flywheel = new Flywheel(hw);
         drivetrain = new Drivetrain(hw, PoseStorage.currentPose);

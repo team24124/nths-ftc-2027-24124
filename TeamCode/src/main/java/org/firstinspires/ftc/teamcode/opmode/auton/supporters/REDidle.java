@@ -46,7 +46,7 @@ public class REDidle extends OpMode {
 
     @Override
     public void init() {
-        robot = new Robot(hardwareMap, telemetry, true);
+        robot = new Robot(hardwareMap, telemetry);
         Scheduler.reset();
 
         follower = Constants.create(hardwareMap);

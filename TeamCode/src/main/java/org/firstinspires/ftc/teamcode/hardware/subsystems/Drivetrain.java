@@ -22,6 +22,7 @@ public class Drivetrain implements SubsystemBase, TelemetryObservable {
 
     public Drivetrain(HardwareMap hw, Pose start) {
         drivetrain = Constants.create(hw);
+        drivetrain.setPose(start);
 
         speeds = new ArraySelect<>(new Double[]{0.5, 1.0});
 
@@ -46,11 +47,7 @@ public class Drivetrain implements SubsystemBase, TelemetryObservable {
         return drivetrain.pose();
     }
 
-    public double getHeading() {
-        return (drivetrain.pose().heading() + Math.PI * 2) % (Math.PI*2);
-    }
-
-    public void drive(double y, double x, double rx, boolean align){
+    public void drive(double x, double y, double rx, boolean align){
         if (align) {
             if (getSpeeds().getSelected() == 1.0) {
                 thetaPD.setPD(1.4,0.045,0);
@@ -69,6 +66,11 @@ public class Drivetrain implements SubsystemBase, TelemetryObservable {
 
         ManualDrive.driveOrHold(drivetrain, powers);
         drivetrain.update();
+    }
+
+    @Override
+    public void periodic() {
+        getDrivetrain().update();
     }
 
     @Override

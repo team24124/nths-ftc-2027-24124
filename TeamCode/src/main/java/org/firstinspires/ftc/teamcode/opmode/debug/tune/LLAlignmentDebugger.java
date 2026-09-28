@@ -80,7 +80,7 @@ public class LLAlignmentDebugger extends OpMode {
             if (limelight.isDetected()) {
                 drivetrain.drive(x, y, -pd.calculate(Math.toRadians(limelight.degreeOffset()), 0, voltageSensor.getVoltage()), false);
             } else {
-                drivetrain.drive(x, y, -pd.calculate(trajectories.theta(drivetrain, 72, 72), 0, voltageSensor.getVoltage()), false);
+                drivetrain.drive(x, y, -pd.calculate(trajectories.theta(drivetrain, 14, 15), 0, voltageSensor.getVoltage()), false);
             }
         } else {
             drivetrain.drive(x, y, rx, false);
@@ -91,9 +91,9 @@ public class LLAlignmentDebugger extends OpMode {
 
         telemetry.addData("\nAlign", alignToAT);
         telemetry.addData("\nIs Detected", limelight.isDetected());
-        telemetry.addData("\nX", "%.1f", drivetrain.getPosition().component1().x);
-        telemetry.addData("Y", "%.1f", drivetrain.getPosition().component1().y);
-        telemetry.addData("\nHeading", "%.1f", drivetrain.getPosition().heading.toDouble());
+        telemetry.addData("\nX", "%.1f", drivetrain.getPosition().x());
+        telemetry.addData("Y", "%.1f", drivetrain.getPosition().y());
+        telemetry.addData("\nHeading", "%.1f", drivetrain.getPosition().heading());
         telemetry.update();
     }
 }
