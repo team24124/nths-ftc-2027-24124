@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.hardware.subsystems;
 
+import static com.pedropathing.ivy.commands.Commands.instant;
+
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.behaviors.ConflictBehavior;
@@ -64,20 +66,20 @@ public class Flywheel implements SubsystemBase, TelemetryObservable {
     }
 
     public Command runFlywheel() {
-        return Command.build().setStart(() -> powered = true);
+        return instant(() -> powered = true);
     }
 
     public Command stopFlywheel() {
-        return Command.build().setStart(() -> {powered = false; primed = false;});
+        return instant(() -> {powered = false; primed = false;});
+    }
+
+    public Command setVls(double d) {
+        return instant(() -> distance = d);
     }
 
     public void power(double vel) {
         double power = pv.calculate(-wheel.getVelocity(), vel, voltageSensor.getVoltage());
         wheel.setPower(power);
-    }
-
-    public Command setVls(double d) {
-        return Command.build().setStart(() -> distance = d);
     }
 
     public void setVelPID(double Kp, double Kv) {

@@ -36,7 +36,7 @@ public class BLUEidle extends OpMode {
         return line(scorePose, parkPose).linear(scorePose, parkPose);
     }
 
-    private Command autoRoutine() {
+    private Command auto() {
         return sequential(
                 follow(follower, startToScore()),
                 // Add mechanism commands here.
@@ -59,7 +59,7 @@ public class BLUEidle extends OpMode {
 
     @Override
     public void start() {
-        schedule(autoRoutine());
+        schedule(auto());
         PoseStorage.currentPose = follower.pose();
     }
 

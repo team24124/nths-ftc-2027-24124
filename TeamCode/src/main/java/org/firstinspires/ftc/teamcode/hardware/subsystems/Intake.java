@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.hardware.subsystems;
 
+import static com.pedropathing.ivy.commands.Commands.instant;
+
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.pedropathing.ivy.Command;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -22,7 +24,7 @@ public class Intake implements SubsystemBase, TelemetryObservable {
     }
 
     public Command runIntake() {
-        return Command.build().setStart(() -> {
+        return instant(() -> {
             targetVel = -((double) 1150/60)*360; // 6900 degrees per second
             intake.setVelocity(targetVel * (145.1/360)); // Degree to tick conversion
             powered = true;
@@ -30,7 +32,7 @@ public class Intake implements SubsystemBase, TelemetryObservable {
     }
 
     public Command reverseIntake() {
-        return Command.build().setStart(() -> {
+        return instant(() -> {
             targetVel = ((double) 1150/60)*180; // 3450 degrees per second
             intake.setVelocity(targetVel * (145.1/360)); // Degree to tick conversion
             powered = true;
@@ -38,7 +40,7 @@ public class Intake implements SubsystemBase, TelemetryObservable {
     }
 
     public Command stopIntake() {
-        return Command.build().setStart(() -> {
+        return instant(() -> {
             targetVel = 0;
             intake.setVelocity(0);
             powered = false;
