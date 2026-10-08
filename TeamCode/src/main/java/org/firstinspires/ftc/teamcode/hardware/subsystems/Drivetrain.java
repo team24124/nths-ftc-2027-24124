@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.interfaces.TelemetryObservable;
 public class Drivetrain implements SubsystemBase, TelemetryObservable {
     private final Follower drivetrain;
     private final ArraySelect<Double> speeds;
-    public PIDF thetaPD = new PIDF();
+    public PIDF thetaPDS = new PIDF();
     public final VoltageSensor voltageSensor;
 
     public Drivetrain(HardwareMap hw, Pose start) {
@@ -26,7 +26,7 @@ public class Drivetrain implements SubsystemBase, TelemetryObservable {
 
         speeds = new ArraySelect<>(new Double[]{0.5, 1.0});
 
-        thetaPD.setPD(4,0.25,0.7);
+        thetaPDS.setPDS(4,0.25, 0,0.7);
 
         voltageSensor = hw.get(VoltageSensor.class, "Control Hub");
     }
@@ -50,11 +50,11 @@ public class Drivetrain implements SubsystemBase, TelemetryObservable {
     public void drive(double x, double y, double rx, boolean align){
         if (align) {
             if (getSpeeds().getSelected() == 1.0) {
-                thetaPD.setPD(1.4,0.045,0);
+                thetaPDS.setPD(1.4,0.045,0);
             } else {
-                thetaPD.setPD(4,0.25,0);
+                thetaPDS.setPD(4,0.25,0);
             }
-            rx = -thetaPD.calculate(rx, 0, voltageSensor.getVoltage()); // rx is limelight/theta from odometry input in this case due to different input parameters in main TeleOps
+            rx = -thetaPDS.calculate(rx, 0, voltageSensor.getVoltage()); // rx is limelight/theta from odometry input in this case due to different input parameters in main TeleOps
         }
 
         DrivePowers powers = ManualDrive.fieldCentric(

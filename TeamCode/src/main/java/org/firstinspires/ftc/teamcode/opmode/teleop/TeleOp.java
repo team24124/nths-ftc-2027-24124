@@ -71,7 +71,7 @@ public class TeleOp extends OpMode {
             Scheduler.schedule(robot.intake.runIntake());
         } else if (driver.isDown(GamepadKeys.Button.LEFT_BUMPER)) {
             Scheduler.schedule(robot.intake.reverseIntake());
-        } else {
+        } else if (robot.intake.powered) {
             Scheduler.schedule(robot.intake.stopIntake());
         }
 

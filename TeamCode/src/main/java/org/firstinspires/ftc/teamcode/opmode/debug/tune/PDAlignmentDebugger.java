@@ -29,13 +29,15 @@ public class PDAlignmentDebugger extends OpMode {
     // --- Tune PD ---
     public static double Kp = 7;
     public static double Kd = 0.7;
+    public static double Ks = 0;
     public static double sf = 0.7;
     public static double targetX = 14;
     public static double targetY = 15;
 
     // --- PD ---
     private boolean alignToAT = false;
-    private PIDF pd = new PIDF();
+    private boolean drift = false;
+    private PIDF pds = new PIDF();
 
     @Override
     public void init() {
@@ -56,14 +58,20 @@ public class PDAlignmentDebugger extends OpMode {
             hub.clearBulkCache();
         }
 
-        pd.setPD(Kp, Kd, sf);
+        pds.setPDS(Kp, Kd, Ks, sf);
 
         double y = driver.getLeftY();
         double x = driver.getLeftX();
         double rx = driver.getRightX();
 
+        if (driver.wasJustPressed(GamepadKeys.Button.B)) {
+            drift = !drift;
+            alignToAT = false;
+        }
+
         if (driver.wasJustPressed(GamepadKeys.Button.A)) {
             alignToAT = !alignToAT;
+            drift = false;
         }
 
         if (driver.wasJustPressed(GamepadKeys.Button.START)) {
@@ -72,8 +80,10 @@ public class PDAlignmentDebugger extends OpMode {
         }
 
         if (alignToAT) {
-            double rotation = pd.calculate(-trajectories.theta(drivetrain, targetX, targetY), 0, voltageSensor.getVoltage());
+            double rotation = pds.calculate(-trajectories.theta(drivetrain, targetX, targetY), 0, voltageSensor.getVoltage());
             drivetrain.drive(x, y, rotation, false);
+        } else if (drift) {
+            drivetrain.drive(0, 0, Ks, false);
         } else {
             drivetrain.drive(x, y, rx, false);
         }
@@ -82,6 +92,7 @@ public class PDAlignmentDebugger extends OpMode {
         driver.readButtons();
 
         telemetry.addData("\nAlign", alignToAT);
+        telemetry.addData("\nDrift", drift);
         telemetry.addData("\nX", "%.1f", drivetrain.getPosition().x());
         telemetry.addData("Y", "%.1f", drivetrain.getPosition().y());
         telemetry.addData("\nHeading", "%.1f", drivetrain.getPosition().heading());
