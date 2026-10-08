@@ -4,8 +4,6 @@ import static com.pedropathing.ivy.commands.Commands.instant;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.pedropathing.ivy.Command;
-import com.pedropathing.ivy.behaviors.ConflictBehavior;
-import com.pedropathing.ivy.behaviors.InterruptedBehavior;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -24,12 +22,13 @@ public class Flywheel implements SubsystemBase, TelemetryObservable {
     public boolean powered = false;
     public boolean primed = false;
     public PIDF pv = new PIDF();
-    double[] dists = {40, 50, 60, 70, 80, 90, 100, 150}; // Inches
-    double[] vels = {1030, 1040, 1080, 1110, 1190, 1250, 1390, 1480}; // Ticks/second max 2800
+    //double[] dists = {40, 50, 60, 70, 80, 90, 100, 150}; // Inches
+    //double[] vels = {1030, 1040, 1080, 1110, 1190, 1250, 1390, 1480}; // Ticks/second max 2800
     public final VoltageSensor voltageSensor;
-    public InterpLUT lut = new InterpLUT(dists, vels);
+    //public InterpLUT lut = new InterpLUT(dists, vels);
     private double distance = 1;
-    public double targetVel = lut.get(distance);
+    //public double targetVel = lut.get(distance);
+    public double targetVel = 999999;
 
     public Flywheel(HardwareMap hw) {
         wheel = hw.get(DcMotorEx.class, "wheel"); // Connected Ehub 2
@@ -41,7 +40,7 @@ public class Flywheel implements SubsystemBase, TelemetryObservable {
 
         pv.setPV(0.004, 0.00042);
 
-        lut.setExtrapolation(InterpLUT.Extrapolation.LINEAR);
+    //    lut.setExtrapolation(InterpLUT.Extrapolation.LINEAR);
     }
 
     /**
@@ -50,10 +49,10 @@ public class Flywheel implements SubsystemBase, TelemetryObservable {
      */
     @Override
     public void periodic(){
-        targetVel = lut.get(distance);
+        //targetVel = lut.get(distance);
         if (powered) {
             power(targetVel);
-            primed = Utilities.isBetween(wheel.getVelocity(), targetVel -175, targetVel + 50);
+            primed = Utilities.isBetween(wheel.getVelocity(), targetVel -100, targetVel + 50);
         } else {
             wheel.setPower(0);
             primed = false;
@@ -89,7 +88,7 @@ public class Flywheel implements SubsystemBase, TelemetryObservable {
     @Override
     public void updateTelemetry(Telemetry telemetry) {
         telemetry.addData("Flywheel Powered", powered);
-        telemetry.addData("Flywheel LUT Value", lut.get(distance));
+    //    telemetry.addData("Flywheel LUT Value", lut.get(distance));
         telemetry.addData("Flywheel Target Velocity (tps)", targetVel);
         telemetry.addData("Flywheel Velocity (tps)", wheel.getVelocity());
         telemetry.addData("Flywheel Primed", primed);
