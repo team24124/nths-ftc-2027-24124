@@ -2,12 +2,12 @@ package org.firstinspires.ftc.teamcode.hardware.subsystems;
 
 import static com.pedropathing.ivy.commands.Commands.instant;
 
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.pedropathing.ivy.Command;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -15,10 +15,10 @@ import org.firstinspires.ftc.teamcode.interfaces.SubsystemBase;
 import org.firstinspires.ftc.teamcode.interfaces.TelemetryObservable;
 import org.firstinspires.ftc.teamcode.util.Utilities;
 import org.firstinspires.ftc.teamcode.util.controllers.PIDF;
-import org.firstinspires.ftc.teamcode.util.plotting.InterpLUT;
 
 public class Flywheel implements SubsystemBase, TelemetryObservable {
     public final DcMotorEx wheel;
+    public final Servo gate;
     public boolean powered = false;
     public boolean primed = false;
     public PIDF pv = new PIDF();
@@ -31,10 +31,12 @@ public class Flywheel implements SubsystemBase, TelemetryObservable {
     public double targetVel = 999999;
 
     public Flywheel(HardwareMap hw) {
-        wheel = hw.get(DcMotorEx.class, "wheel"); // Connected Ehub 2
+        wheel = hw.get(DcMotorEx.class, "wheel"); // Connected Ehub 1
         wheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         wheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         wheel.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        gate = hw.get(Servo.class, "gate");
 
         voltageSensor = hw.get(VoltageSensor.class, "Control Hub");
 
@@ -85,6 +87,18 @@ public class Flywheel implements SubsystemBase, TelemetryObservable {
         pv.setPV(Kp, Kv);
     }
 
+    public Command openGate() {
+        return instant(() -> {
+            gate.setPosition(0);
+        });
+    }
+
+    public Command closeGate() {
+        return instant(() -> {
+            gate.setPosition(1);
+        });
+    }
+
     @Override
     public void updateTelemetry(Telemetry telemetry) {
         telemetry.addData("Flywheel Powered", powered);
@@ -92,6 +106,7 @@ public class Flywheel implements SubsystemBase, TelemetryObservable {
         telemetry.addData("Flywheel Target Velocity (tps)", targetVel);
         telemetry.addData("Flywheel Velocity (tps)", wheel.getVelocity());
         telemetry.addData("Flywheel Primed", primed);
+        telemetry.addData("Servo State", gate.getPosition());
     }
 
     @Override
