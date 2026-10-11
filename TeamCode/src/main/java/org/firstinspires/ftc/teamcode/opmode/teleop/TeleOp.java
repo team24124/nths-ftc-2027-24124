@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmode.teleop;
 
+import static com.pedropathing.ivy.groups.Groups.parallel;
+
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.pedropathing.ivy.Scheduler;
@@ -67,11 +69,13 @@ public class TeleOp extends OpMode {
             alignToAT = !alignToAT;
         }
 
-        if (driver.isDown(GamepadKeys.Button.RIGHT_BUMPER)) {
+        if (driver.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER)) {
             Scheduler.schedule(robot.intake.runIntake());
-        } else if (driver.isDown(GamepadKeys.Button.LEFT_BUMPER)) {
+        }
+        if (driver.wasJustPressed(GamepadKeys.Button.LEFT_BUMPER)) {
             Scheduler.schedule(robot.intake.reverseIntake());
-        } else if (robot.intake.powered) {
+        }
+        if (driver.wasJustReleased(GamepadKeys.Button.LEFT_BUMPER) || driver.wasJustReleased(GamepadKeys.Button.RIGHT_BUMPER)) {
             Scheduler.schedule(robot.intake.stopIntake());
         }
 
@@ -90,9 +94,10 @@ public class TeleOp extends OpMode {
         }
 
         if (operator.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER)) {
-            if (robot.flywheel.primed) {
-                Scheduler.schedule();
-            }
+            Scheduler.schedule(parallel(robot.flywheel.openGate()), robot.intake.runIntake());
+        }
+        if (operator.wasJustReleased(GamepadKeys.Button.RIGHT_BUMPER)) {
+            Scheduler.schedule(parallel(robot.flywheel.closeGate()), robot.intake.stopIntake());
         }
 
         if (robot.flywheel.primed && !notified) {
