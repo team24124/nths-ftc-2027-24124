@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmode.debug.tune;
 
+import static com.pedropathing.ivy.groups.Groups.parallel;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
@@ -12,6 +14,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.hardware.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.Flywheel;
+import org.firstinspires.ftc.teamcode.hardware.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.opmode.teleop.TeleOpTrajectories;
 import org.firstinspires.ftc.teamcode.util.TelemetryControl;
 import org.firstinspires.ftc.teamcode.util.Utilities;
@@ -25,6 +28,7 @@ public class FlywheelDebugger extends OpMode {
     private List<LynxModule> hubs;
     private Flywheel flywheel;
     private Drivetrain drivetrain;
+    private Intake intake;
     private TelemetryControl telemetryControl;
     private TeleOpTrajectories trajectories;
     public static double Kp = 0.004;
@@ -41,9 +45,10 @@ public class FlywheelDebugger extends OpMode {
         Scheduler.reset();
         driver = new GamepadEx(gamepad1);
         flywheel = new Flywheel(hardwareMap);
+        intake = new Intake(hardwareMap);
         telemetryControl = new TelemetryControl(telemetry);
         drivetrain = new Drivetrain(hardwareMap, new Pose(0, 0, 0)); // Start robot at the center of the field facing +X
-        telemetryControl.subscribe(flywheel).subscribe(drivetrain);
+        telemetryControl.subscribe(flywheel).subscribe(drivetrain).subscribe(intake);
         trajectories = TeleOpTrajectories.INSTANCE;
     }
 
@@ -66,10 +71,11 @@ public class FlywheelDebugger extends OpMode {
             Scheduler.schedule(flywheel.stopFlywheel());
         }
 
-        if (Utilities.isBetween(flywheel.wheel.getVelocity(), velocity - 50, velocity + 50)) {
-            if (driver.wasJustPressed(GamepadKeys.Button.DPAD_UP)) {
-
-            }
+        if (driver.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER)) {
+            Scheduler.schedule(parallel(flywheel.openGate()), intake.runIntake());
+        }
+        if (driver.wasJustReleased(GamepadKeys.Button.RIGHT_BUMPER)) {
+            Scheduler.schedule(parallel(flywheel.closeGate()), intake.stopIntake());
         }
 
         if (flywheel.powered) {

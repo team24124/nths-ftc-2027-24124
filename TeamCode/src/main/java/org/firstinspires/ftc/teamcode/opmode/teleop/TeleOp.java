@@ -83,13 +83,13 @@ public class TeleOp extends OpMode {
 
         if (operator.wasJustPressed(GamepadKeys.Button.B)) {
             Scheduler.schedule(robot.flywheel.runFlywheel());
-            driver.gamepad.rumble(200);
+            operator.gamepad.rumble(200);
             notified = false;
         }
 
         if (operator.wasJustPressed(GamepadKeys.Button.A)) {
             Scheduler.schedule(robot.flywheel.stopFlywheel());
-            driver.gamepad.rumble(200);
+            operator.gamepad.rumble(200);
             notified = false;
         }
 
@@ -101,8 +101,8 @@ public class TeleOp extends OpMode {
         }
 
         if (robot.flywheel.primed && !notified) {
-            operator.gamepad.rumbleBlips(3);
-            driver.gamepad.rumbleBlips(3);
+            operator.gamepad.rumble(500);
+            driver.gamepad.rumble(500);
             notified = true;
         }
 
