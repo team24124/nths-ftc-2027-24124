@@ -5,7 +5,6 @@ import static com.pedropathing.ivy.commands.Commands.instant;
 import com.pedropathing.ivy.Command;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
@@ -28,13 +27,12 @@ public class Flywheel implements SubsystemBase, TelemetryObservable {
     //public InterpLUT lut = new InterpLUT(dists, vels);
     private double distance = 1;
     //public double targetVel = lut.get(distance);
-    public double targetVel = 999999;
+    public double targetVel = 900;
 
     public Flywheel(HardwareMap hw) {
-        wheel = hw.get(DcMotorEx.class, "wheel"); // Connected Ehub 1
+        wheel = hw.get(DcMotorEx.class, "wheel");
         wheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         wheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        wheel.setDirection(DcMotorSimple.Direction.REVERSE);
 
         gate = hw.get(Servo.class, "gate");
 
@@ -89,13 +87,13 @@ public class Flywheel implements SubsystemBase, TelemetryObservable {
 
     public Command openGate() {
         return instant(() -> {
-            gate.setPosition(0);
+            gate.setPosition(0.5);
         });
     }
 
     public Command closeGate() {
         return instant(() -> {
-            gate.setPosition(1);
+            gate.setPosition(0);
         });
     }
 

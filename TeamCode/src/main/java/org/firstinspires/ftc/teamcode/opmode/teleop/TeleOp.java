@@ -53,13 +53,13 @@ public class TeleOp extends OpMode {
 
         // --------- DRIVER INPUTS ---------
 
-        double x = -driver.getLeftY();
-        double y = driver.getLeftX();
+        double x = -driver.getLeftX();
+        double y = driver.getLeftY();
         if (PoseStorage.currentAlliance == PoseStorage.Alliance.RED) {
-            x = driver.getLeftY();
-            y = -driver.getLeftX();
+            x = driver.getLeftX();
+            y = -driver.getLeftY();
         }
-        double rx = driver.getRightX();
+        double rx = -driver.getRightX();
 
         if (driver.wasJustPressed(GamepadKeys.Button.Y)) {
             robot.drivetrain.toggleSpeeds();
