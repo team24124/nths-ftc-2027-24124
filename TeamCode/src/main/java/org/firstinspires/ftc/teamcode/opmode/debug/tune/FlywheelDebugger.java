@@ -31,8 +31,8 @@ public class FlywheelDebugger extends OpMode {
     private Intake intake;
     private TelemetryControl telemetryControl;
     private TeleOpTrajectories trajectories;
-    public static double Kp = 0.004;
-    public static double Kv = 0.00042;
+    public static double Kp = 0.4;
+    public static double Kv = 0.0001;
     public static double velocity = 1; // Enter ticks/second
 
     @Override

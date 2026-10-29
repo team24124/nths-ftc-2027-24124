@@ -25,8 +25,9 @@ public class Drivetrain implements SubsystemBase, TelemetryObservable {
         drivetrain.setPose(start);
 
         speeds = new ArraySelect<>(new Double[]{0.5, 1.0});
+        speeds.setSelected(1);
 
-        thetaPDS.setPDS(4,0.25, 0,0.7);
+        thetaPDS.setPDF(7, 0.5, 0, 0);
 
         voltageSensor = hw.get(VoltageSensor.class, "Control Hub");
     }
@@ -50,11 +51,11 @@ public class Drivetrain implements SubsystemBase, TelemetryObservable {
     public void drive(double x, double y, double rx, boolean align){
         if (align) {
             if (getSpeeds().getSelected() == 1.0) {
-                thetaPDS.setPD(1.4,0.045,0);
+                thetaPDS.setPDF(3,0.2, 0,0);
             } else {
-                thetaPDS.setPD(4,0.25,0);
+                thetaPDS.setPDF(7,0.5, 0,0);
             }
-            rx = -thetaPDS.calculate(rx, 0, voltageSensor.getVoltage()); // rx is limelight/theta from odometry input in this case due to different input parameters in main TeleOps
+            rx = thetaPDS.calculate(rx, 0, 0, voltageSensor.getVoltage()); // rx is limelight/theta from odometry input in this case due to different input parameters in main TeleOps
         }
 
         DrivePowers powers = ManualDrive.fieldCentric(

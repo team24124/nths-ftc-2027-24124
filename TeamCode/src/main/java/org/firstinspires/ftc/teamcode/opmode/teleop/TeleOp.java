@@ -21,7 +21,6 @@ public class TeleOp extends OpMode {
     private GamepadEx driver, operator;
     private TeleOpTrajectories trajectories;
     private boolean alignToAT = false;
-    private boolean notified = false;
     private final double targetX = PoseStorage.currentAlliance == PoseStorage.Alliance.BLUE ? 14 : -14;
     private double targetY = 14;
 
@@ -37,12 +36,6 @@ public class TeleOp extends OpMode {
         driver = new GamepadEx(gamepad1);
         operator = new GamepadEx(gamepad2);
         robot = new Robot(hardwareMap, telemetry);
-
-        if (PoseStorage.currentAlliance == PoseStorage.Alliance.RED) {
-            robot.limelight.setPipeline(Limelight.Pipeline.AT3);
-        } else {
-            robot.limelight.setPipeline(Limelight.Pipeline.AT2);
-        }
     }
 
     @Override
@@ -53,11 +46,11 @@ public class TeleOp extends OpMode {
 
         // --------- DRIVER INPUTS ---------
 
-        double x = -driver.getLeftX();
-        double y = driver.getLeftY();
+        double x = driver.getLeftX();
+        double y = -driver.getLeftY();
         if (PoseStorage.currentAlliance == PoseStorage.Alliance.RED) {
-            x = driver.getLeftX();
-            y = -driver.getLeftY();
+            x = -driver.getLeftX();
+            y = driver.getLeftY();
         }
         double rx = -driver.getRightX();
 
@@ -84,13 +77,11 @@ public class TeleOp extends OpMode {
         if (operator.wasJustPressed(GamepadKeys.Button.B)) {
             Scheduler.schedule(robot.flywheel.runFlywheel());
             operator.gamepad.rumble(200);
-            notified = false;
         }
 
         if (operator.wasJustPressed(GamepadKeys.Button.A)) {
             Scheduler.schedule(robot.flywheel.stopFlywheel());
             operator.gamepad.rumble(200);
-            notified = false;
         }
 
         if (operator.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER)) {
@@ -98,12 +89,6 @@ public class TeleOp extends OpMode {
         }
         if (operator.wasJustReleased(GamepadKeys.Button.RIGHT_BUMPER)) {
             Scheduler.schedule(parallel(robot.flywheel.closeGate()), robot.intake.stopIntake());
-        }
-
-        if (robot.flywheel.primed && !notified) {
-            operator.gamepad.rumble(500);
-            driver.gamepad.rumble(500);
-            notified = true;
         }
 
         if (operator.wasJustPressed(GamepadKeys.Button.Y)) {
@@ -120,11 +105,7 @@ public class TeleOp extends OpMode {
 
         if (!robot.drivetrain.getDrivetrain().isBusy()) {
             if (alignToAT) {
-                if (robot.limelight.isDetected()) {
-                    robot.drivetrain.drive(x, y, Math.toRadians(robot.limelight.degreeOffset()), true);
-                } else {
-                    robot.drivetrain.drive(x, y, trajectories.theta(robot.drivetrain, targetX, targetY), true);
-                }
+                robot.drivetrain.drive(x, y, trajectories.theta(robot.drivetrain, targetX, targetY), true);
             } else {
                 robot.drivetrain.drive(x, y, rx, false);
             }

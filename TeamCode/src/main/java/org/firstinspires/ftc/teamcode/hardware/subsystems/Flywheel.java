@@ -27,7 +27,7 @@ public class Flywheel implements SubsystemBase, TelemetryObservable {
     //public InterpLUT lut = new InterpLUT(dists, vels);
     private double distance = 1;
     //public double targetVel = lut.get(distance);
-    public double targetVel = 900;
+    public double targetVel = 1150;
 
     public Flywheel(HardwareMap hw) {
         wheel = hw.get(DcMotorEx.class, "wheel");
@@ -35,10 +35,11 @@ public class Flywheel implements SubsystemBase, TelemetryObservable {
         wheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         gate = hw.get(Servo.class, "gate");
+        gate.setPosition(0.6);
 
         voltageSensor = hw.get(VoltageSensor.class, "Control Hub");
 
-        pv.setPV(0.004, 0.00042);
+        pv.setPV(0.4, 0.0001);
 
     //    lut.setExtrapolation(InterpLUT.Extrapolation.LINEAR);
     }
@@ -77,7 +78,7 @@ public class Flywheel implements SubsystemBase, TelemetryObservable {
     }
 
     public void power(double vel) {
-        double power = pv.calculate(-wheel.getVelocity(), vel, voltageSensor.getVoltage());
+        double power = pv.calculate(-wheel.getVelocity(), vel, 0, voltageSensor.getVoltage());
         wheel.setPower(power);
     }
 
@@ -87,13 +88,13 @@ public class Flywheel implements SubsystemBase, TelemetryObservable {
 
     public Command openGate() {
         return instant(() -> {
-            gate.setPosition(0.5);
+            gate.setPosition(0.8);
         });
     }
 
     public Command closeGate() {
         return instant(() -> {
-            gate.setPosition(0);
+            gate.setPosition(0.6);
         });
     }
 
@@ -102,7 +103,7 @@ public class Flywheel implements SubsystemBase, TelemetryObservable {
         telemetry.addData("Flywheel Powered", powered);
     //    telemetry.addData("Flywheel LUT Value", lut.get(distance));
         telemetry.addData("Flywheel Target Velocity (tps)", targetVel);
-        telemetry.addData("Flywheel Velocity (tps)", wheel.getVelocity());
+        telemetry.addData("Flywheel Velocity (tps)", -wheel.getVelocity());
         telemetry.addData("Flywheel Primed", primed);
         telemetry.addData("Servo State", gate.getPosition());
     }

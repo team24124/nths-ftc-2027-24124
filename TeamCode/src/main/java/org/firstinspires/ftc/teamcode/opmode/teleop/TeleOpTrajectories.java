@@ -25,7 +25,7 @@ public enum TeleOpTrajectories {
 
     // Returns angle to target [-pi (left facing error), +pi (right facing error)]
     public double theta(Drivetrain drivetrain, double targetX, double targetY) {
-        double heading = drivetrain.getPosition().heading();
+        double heading = (drivetrain.getPosition().heading() + Math.PI) % (Math.PI * 2);
         double botX = drivetrain.getPosition().x();
         double botY = drivetrain.getPosition().y();
 

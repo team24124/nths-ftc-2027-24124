@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.util.controllers;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class PIDF {
-    private double Kp, Ki, Kd, Kg, Kv, Ks = 0; // Proportional, integral, derivative, gravitational correction ff, velocity ff, static friction ff
+    private double Kp, Ki, Kd, Kg, Kv, Kf = 0; // Proportional, integral, derivative, gravitational correction ff, velocity ff, velocity (variable) ff
     private double smoothingFactor = 0; // sf can be any value from 0 < sf < 1. Heavier smoothing but less responsiveness towards 1
     private double integralSumLimit = 0; // Integral cap to prevent unnecessary accumulation
 
@@ -22,6 +22,12 @@ public class PIDF {
         this.integralSumLimit = integralSumLimit;
         this.motorTPR = motorTPR;
     }
+    public void setPDF(double Kp, double Kd, double Kf, double smoothingFactor) {
+        this.Kp = Kp;
+        this.Kd = Kd;
+        this.Kf = Kf;
+        this.smoothingFactor = smoothingFactor;
+    }
     public void setPIDV(double Kp, double Ki, double Kd, double Kv, double smoothingFactor, double integralSumLimit) {
         this.Kp = Kp;
         this.Ki = Ki;
@@ -29,12 +35,6 @@ public class PIDF {
         this.Kv = Kv;
         this.smoothingFactor = smoothingFactor;
         this.integralSumLimit = integralSumLimit;
-    }
-    public void setPDS(double Kp, double Kd, double Ks, double smoothingFactor) {
-        this.Kp = Kp;
-        this.Kd = Kd;
-        this.Ks = Ks;
-        this.smoothingFactor = smoothingFactor;
     }
     public void setPID(double Kp, double Ki, double Kd, double smoothingFactor, double integralSumLimit) {
         this.Kp = Kp;
@@ -58,7 +58,7 @@ public class PIDF {
     }
 
     // Outputs processed power
-    public double calculate(double position, double target, double voltage) {
+    public double calculate(double position, double target, double FFVal, double voltage) {
         // Time
         double dt = timer.seconds();
         timer.reset();
@@ -86,7 +86,7 @@ public class PIDF {
         double radians = 2 * Math.PI * (position / motorTPR); // Assumes an arm is initialized horizontally, TPR is gear ratio * 28, goBILDA 312rpm 5203 yellowjacket motor
 
         // Output calculator
-        double out = ((Kp * error) + (Ki * integralSum) + (Kd * derivative) + (Kg * Math.cos(radians)) + (Kv * target) + (Ks * Math.signum(error))) * (12.0 / Math.max(voltage, 8.0));
+        double out = ((Kp * error) + (Ki * integralSum) + (Kd * derivative) + (Kg * Math.cos(radians)) + (Kv * target) + (Kf * FFVal)) * (12.0 / Math.max(voltage, 8.0));
         out = Math.max(-1, Math.min(1, out));
 
         // Output & error setter

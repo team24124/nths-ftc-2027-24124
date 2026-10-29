@@ -78,9 +78,9 @@ public class LLAlignmentDebugger extends OpMode {
 
         if (alignToAT) {
             if (limelight.isDetected()) {
-                drivetrain.drive(x, y, -pd.calculate(Math.toRadians(limelight.degreeOffset()), 0, voltageSensor.getVoltage()), false);
+                drivetrain.drive(x, y, -pd.calculate(Math.toRadians(limelight.degreeOffset()), 0, 0, voltageSensor.getVoltage()), false);
             } else {
-                drivetrain.drive(x, y, -pd.calculate(trajectories.theta(drivetrain, 14, 15), 0, voltageSensor.getVoltage()), false);
+                drivetrain.drive(x, y, -pd.calculate(trajectories.theta(drivetrain, 14, 15), 0, 0, voltageSensor.getVoltage()), false);
             }
         } else {
             drivetrain.drive(x, y, rx, false);
