@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.opmode.debug.tune;
 import static com.pedropathing.ivy.groups.Groups.parallel;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.roadrunner.Pose2d;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.pedropathing.ivy.Scheduler;
@@ -17,7 +16,6 @@ import org.firstinspires.ftc.teamcode.hardware.subsystems.Flywheel;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.opmode.teleop.TeleOpTrajectories;
 import org.firstinspires.ftc.teamcode.util.TelemetryControl;
-import org.firstinspires.ftc.teamcode.util.Utilities;
 
 import java.util.List;
 
@@ -31,9 +29,9 @@ public class FlywheelDebugger extends OpMode {
     private Intake intake;
     private TelemetryControl telemetryControl;
     private TeleOpTrajectories trajectories;
-    public static double Kp = 0.4;
-    public static double Kv = 0.0001;
-    public static double velocity = 1; // Enter ticks/second
+    public static double Kp = 0.9;
+    public static double Kv = 0.0003;
+    public static double velocity = 900; // Enter ticks/second
 
     @Override
     public void init() {

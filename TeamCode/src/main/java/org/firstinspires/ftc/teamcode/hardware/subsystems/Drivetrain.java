@@ -51,9 +51,9 @@ public class Drivetrain implements SubsystemBase, TelemetryObservable {
     public void drive(double x, double y, double rx, boolean align){
         if (align) {
             if (getSpeeds().getSelected() == 1.0) {
-                thetaPDS.setPDF(3,0.2, 0,0);
+                thetaPDS.setPDF(3,0.2, 0.5,0);
             } else {
-                thetaPDS.setPDF(7,0.5, 0,0);
+                thetaPDS.setPDF(7,0.5, 0.5,0);
             }
             rx = thetaPDS.calculate(rx, 0, 0, voltageSensor.getVoltage()); // rx is limelight/theta from odometry input in this case due to different input parameters in main TeleOps
         }

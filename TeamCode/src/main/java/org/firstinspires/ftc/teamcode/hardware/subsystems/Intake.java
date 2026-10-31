@@ -2,12 +2,11 @@ package org.firstinspires.ftc.teamcode.hardware.subsystems;
 
 import static com.pedropathing.ivy.commands.Commands.instant;
 
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.pedropathing.ivy.Command;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.interfaces.SubsystemBase;
@@ -15,6 +14,7 @@ import org.firstinspires.ftc.teamcode.interfaces.TelemetryObservable;
 
 public class Intake implements SubsystemBase, TelemetryObservable {
     public final DcMotorEx intake;
+    public final Servo wedge;
     public boolean powered = false;
     public double targetVel = 0;
 
@@ -22,12 +22,13 @@ public class Intake implements SubsystemBase, TelemetryObservable {
         intake = hw.get(DcMotorEx.class, "intake");
         intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        intake.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        wedge = hw.get(Servo.class, "wedge");
     }
 
     public Command runIntake() {
         return instant(() -> {
-            targetVel = -((double) 1150/60)*360; // 6900 degrees per second
+            targetVel = ((double) 1150/60)*360; // 6900 degrees per second
             intake.setVelocity(targetVel * (145.1/360)); // Degree to tick conversion
             powered = true;
         });
@@ -35,7 +36,7 @@ public class Intake implements SubsystemBase, TelemetryObservable {
 
     public Command reverseIntake() {
         return instant(() -> {
-            targetVel = ((double) 1150/60)*180; // 3450 degrees per second
+            targetVel = -((double) 1150/60)*180; // 3450 degrees per second
             intake.setVelocity(targetVel * (145.1/360)); // Degree to tick conversion
             powered = true;
         });
@@ -51,6 +52,14 @@ public class Intake implements SubsystemBase, TelemetryObservable {
 
     public double velocity() {
         return intake.getVelocity();
+    }
+
+    public Command extendWedge() {
+        return instant(() -> wedge.setPosition(1));
+    }
+
+    public Command retractWedge() {
+        return instant(() -> wedge.setPosition(0.7));
     }
 
     @Override

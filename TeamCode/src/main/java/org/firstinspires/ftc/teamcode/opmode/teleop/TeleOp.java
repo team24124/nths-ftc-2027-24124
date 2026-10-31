@@ -9,7 +9,6 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.hardware.Robot;
-import org.firstinspires.ftc.teamcode.hardware.subsystems.Limelight;
 import org.firstinspires.ftc.teamcode.util.PoseStorage;
 
 import java.util.List;
@@ -22,7 +21,7 @@ public class TeleOp extends OpMode {
     private TeleOpTrajectories trajectories;
     private boolean alignToAT = false;
     private final double targetX = PoseStorage.currentAlliance == PoseStorage.Alliance.BLUE ? 14 : -14;
-    private double targetY = 14;
+    private double targetY = 5;
 
     @Override
     public void init() {
