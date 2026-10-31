@@ -20,8 +20,8 @@ public class TeleOp extends OpMode {
     private GamepadEx driver, operator;
     private TeleOpTrajectories trajectories;
     private boolean alignToAT = false;
-    private final double targetX = PoseStorage.currentAlliance == PoseStorage.Alliance.BLUE ? 14 : -14;
-    private double targetY = 5;
+    private final double targetX = PoseStorage.currentAlliance == PoseStorage.Alliance.BLUE ? 10 : -18; // -4 on both sides because pollen shooter is to the right of robot
+    private double targetY = 14;
 
     @Override
     public void init() {
