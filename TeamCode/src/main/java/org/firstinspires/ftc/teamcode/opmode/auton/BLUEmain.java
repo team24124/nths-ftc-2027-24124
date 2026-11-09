@@ -24,58 +24,50 @@ import org.firstinspires.ftc.teamcode.util.PoseStorage;
 public class BLUEmain extends OpMode {
     Robot robot;
     private final PoseFactory poseFactory = PoseFactory.degrees();
-    private final Pose start = poseFactory.of(84, 135, 90); // Center of tile
+    private final Pose start = poseFactory.of(80, 133, 90);
+    private final Pose point1 = poseFactory.of(80, 131, 90);
 
-    private final Pose point1 = poseFactory.of(135, 135, 90);
-    private final Pose point1Control1 = poseFactory.of(85, 123, 0);
-    private final Pose point1Control2 = poseFactory.of(107, 135, 0);
-    private final Pose point1Segment1Start = poseFactory.of(135, 135, 90);
-    private final Pose point1Segment1End = poseFactory.of(135, 135, 75);
-    private final Pose point1Segment2Start = poseFactory.of(135, 135, 75);
-    private final Pose point1Segment2End = poseFactory.of(135, 135, 90);
+    private final Pose point2 = poseFactory.of(133, 133, 90);
+    private final Pose point2Control1 = poseFactory.of(107, 124, 0);
+    private final Pose point2Segment1Start = poseFactory.of(133, 133, 90);
+    private final Pose point2Segment1End = poseFactory.of(133, 133, 75);
+    private final Pose point2Segment2Start = poseFactory.of(133, 133, 75);
+    private final Pose point2Segment2End = poseFactory.of(133, 133, 90);
 
-    private final Pose point2 = poseFactory.of(84, 17, -90);
-    private final Pose point2Control1 = poseFactory.of(113, 23, 0);
-    private final Pose point2Segment1Start = poseFactory.of(84, 17, 90);
-    private final Pose point2Segment1End = poseFactory.of(84, 17, 75);
-    private final Pose point2Segment2Start = poseFactory.of(84, 17, 75);
-    private final Pose point2Segment2End = poseFactory.of(84, 17, 70);
-    private final Pose point2Segment3Start = poseFactory.of(84, 17, 70);
-    private final Pose point2Segment3End = poseFactory.of(84, 17, 270);
+    private final Pose point3 = poseFactory.of(82, 22, -90);
+    private final Pose point3Control1 = poseFactory.of(113, 23, 0);
+    private final Pose point3Segment1Start = poseFactory.of(82, 22, 90);
+    private final Pose point3Segment1End = poseFactory.of(82, 22, 75);
+    private final Pose point3Segment2Start = poseFactory.of(82, 22, 75);
+    private final Pose point3Segment2End = poseFactory.of(82, 22, 70);
+    private final Pose point3Segment3Start = poseFactory.of(82, 22, 70);
+    private final Pose point3Segment3End = poseFactory.of(82, 22, 270);
 
-    private final Pose point3 = poseFactory.of(94, 13, 270);
-    private final Pose point3Control1 = poseFactory.of(93, 21, 0);
+    private final Pose point4 = poseFactory.of(94, 20, 270);
+    private final Pose point4Control1 = poseFactory.of(91, 28, 0);
 
-    private final Pose point4 = poseFactory.of(84, 17, 270);
+    private final Pose point5 = poseFactory.of(82, 22, 270);
 
-    private final Pose point5 = poseFactory.of(127, 95, 0);
-    private final Pose point5Control1 = poseFactory.of(134, 32, 0);
-    private final Pose point5Control2 = poseFactory.of(100, 97, 0);
-    private final Pose point5Segment1Start = poseFactory.of(127, 95, 270);
-    private final Pose point5Segment1End = poseFactory.of(127, 95, 0);
-    private final Pose point5Segment2Start = poseFactory.of(127, 95, 0);
-    private final Pose point5Segment2End = poseFactory.of(127, 95, 0);
+    private final Pose point6 = poseFactory.of(127, 46, 270);
 
-    private final Pose point6 = poseFactory.of(127, 46, 0);
+    public Path walk() {
+        return Paths.line(start, point1).constant(point1);
+    }
 
-    public Path intake() {
-        return Paths.curve(start, point1Control1, point1Control2, point1).heading(Interpolator.piecewise().until(0.9437, Interpolator.linear(point1Segment1Start, point1Segment1End)).until(1, Interpolator.linear(point1Segment2Start, point1Segment2End)));
+    public Path intake1() {
+        return Paths.curve(point1, point2Control1, point2).heading(Interpolator.piecewise().until(0.9437, Interpolator.linear(point2Segment1Start, point2Segment1End)).until(1, Interpolator.linear(point2Segment2Start, point2Segment2End)));
     }
 
     public Path moveToShoot1() {
-        return Paths.curve(point1, point2Control1, point2).heading(Interpolator.piecewise().until(0.01, Interpolator.linear(point2Segment1Start, point2Segment1End)).until(0.6, Interpolator.linear(point2Segment2Start, point2Segment2End)).until(1, Interpolator.linear(point2Segment3Start, point2Segment3End)));
+        return Paths.curve(point2, point3Control1, point3).heading(Interpolator.piecewise().until(0.01, Interpolator.linear(point3Segment1Start, point3Segment1End)).until(0.6, Interpolator.linear(point3Segment2Start, point3Segment2End)).until(1, Interpolator.linear(point3Segment3Start, point3Segment3End)));
     }
 
     public Path intake2() {
-        return Paths.curve(point2, point3Control1, point3).constant(point3);
+        return Paths.curve(point3, point4Control1, point4).constant(point4);
     }
 
     public Path moveToShoot2() {
-        return Paths.line(point3, point4).constant(point4);
-    }
-
-    public Path intake3() {
-        return Paths.curve(point4, point5Control1, point5Control2, point5).heading(Interpolator.piecewise().until(0.3, Interpolator.linear(point5Segment1Start, point5Segment1End)).until(1, Interpolator.linear(point5Segment2Start, point5Segment2End)));
+        return Paths.line(point4, point5).constant(point5);
     }
 
     public Path park() {
@@ -87,14 +79,16 @@ public class BLUEmain extends OpMode {
                 robot.flywheel.autonPeriodic(),
 
                 sequential(
-                        // shoot first volley
                         robot.flywheel.runFlywheel(),
+                        follow(robot.drivetrain.getDrivetrain(), walk()),
+
+                        // shoot first volley
                         waitMs(3000),
                         parallel(robot.flywheel.openGate(), robot.intake.runIntake()),
                         waitMs(500),
                         parallel(robot.flywheel.closeGate(), robot.flywheel.stopFlywheel()),
 
-                        follow(robot.drivetrain.getDrivetrain(), intake()),
+                        follow(robot.drivetrain.getDrivetrain(), intake1()),
                         waitMs(300),
                         robot.flywheel.runFlywheel(),
 
@@ -110,17 +104,12 @@ public class BLUEmain extends OpMode {
 
                         // shoot last volley
                         follow(robot.drivetrain.getDrivetrain(), moveToShoot2()),
+                        robot.intake.retractWedge(),
                         robot.flywheel.openGate(),
                         waitMs(500),
-                        parallel(robot.flywheel.closeGate(), robot.flywheel.stopFlywheel()),
+                        parallel(robot.intake.stopIntake(), robot.flywheel.closeGate(), robot.flywheel.stopFlywheel()),
 
-                        follow(robot.drivetrain.getDrivetrain(), intake3()),
-                        waitMs(1000),
-                        robot.intake.stopIntake(),
-
-                        follow(robot.drivetrain.getDrivetrain(), park()),
-                        robot.intake.retractWedge()
-
+                        follow(robot.drivetrain.getDrivetrain(), park())
                 )
         );
     }
@@ -156,6 +145,6 @@ public class BLUEmain extends OpMode {
 
     @Override
     public void stop() {
-        PoseStorage.currentPose = robot.drivetrain.getDrivetrain().pose();
+        PoseStorage.currentPose = new Pose(robot.drivetrain.getDrivetrain().pose().x()-70.75, robot.drivetrain.getDrivetrain().pose().y()-70.75, robot.drivetrain.getDrivetrain().pose().heading());
     }
 }

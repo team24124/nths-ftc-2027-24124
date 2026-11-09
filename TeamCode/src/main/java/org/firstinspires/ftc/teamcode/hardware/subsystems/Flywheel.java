@@ -27,7 +27,7 @@ public class Flywheel implements SubsystemBase, TelemetryObservable {
     //public InterpLUT lut = new InterpLUT(dists, vels);
     private double distance = 1;
     //public double targetVel = lut.get(distance);
-    public double targetVel = 1250;
+    public double targetVel = 1100;
 
     public Flywheel(HardwareMap hw) {
         wheel = hw.get(DcMotorEx.class, "wheel");
@@ -35,7 +35,7 @@ public class Flywheel implements SubsystemBase, TelemetryObservable {
         wheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         gate = hw.get(Servo.class, "gate");
-        gate.setPosition(0.6);
+        gate.setPosition(0.68);
 
         voltageSensor = hw.get(VoltageSensor.class, "Control Hub");
 
@@ -87,11 +87,11 @@ public class Flywheel implements SubsystemBase, TelemetryObservable {
     }
 
     public Command openGate() {
-        return instant(() -> gate.setPosition(0.8));
+        return instant(() -> gate.setPosition(0.88));
     }
 
     public Command closeGate() {
-        return instant(() -> gate.setPosition(0.6));
+        return instant(() -> gate.setPosition(0.68));
     }
 
     @Override
