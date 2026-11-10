@@ -78,7 +78,7 @@ public class TrajectoryDebugger extends OpMode {
         }
 
         if (!drivetrain.getDrivetrain().isBusy()) {
-            drivetrain.drive(x, y, rx, false);
+            drivetrain.drive(x, y, rx, false, 0, 0);
         }
         drivetrain.periodic();
 

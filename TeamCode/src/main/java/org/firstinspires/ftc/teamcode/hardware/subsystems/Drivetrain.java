@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.interfaces.TelemetryObservable;
 public class Drivetrain implements SubsystemBase, TelemetryObservable {
     private final Follower drivetrain;
     private final ArraySelect<Double> speeds;
-    public PIDF thetaPDS = new PIDF();
+    public PIDF thetaPDF = new PIDF();
     public final VoltageSensor voltageSensor;
 
     public Drivetrain(HardwareMap hw, Pose start) {
@@ -27,7 +27,7 @@ public class Drivetrain implements SubsystemBase, TelemetryObservable {
         speeds = new ArraySelect<>(new Double[]{0.5, 1.0});
         speeds.setSelected(1);
 
-        thetaPDS.setPDF(7, 0.5, 0, 0);
+        thetaPDF.setPDF(7, 0.5, 0, 0);
 
         voltageSensor = hw.get(VoltageSensor.class, "Control Hub");
     }
@@ -48,14 +48,16 @@ public class Drivetrain implements SubsystemBase, TelemetryObservable {
         return drivetrain.pose();
     }
 
-    public void drive(double x, double y, double rx, boolean align){
+    public void drive(double x, double y, double rx, boolean align, double d, double FFVal){
         if (align) {
             if (getSpeeds().getSelected() == 1.0) {
-                thetaPDS.setPDF(3,0.2, 0.5,0);
+                thetaPDF.setPDF(3,0.2, 0.5,0);
             } else {
-                thetaPDS.setPDF(7,0.5, 0.5,0);
+                thetaPDF.setPDF(7,0.5, 0.5,0);
             }
-            rx = thetaPDS.calculate(rx, 0, 0, voltageSensor.getVoltage()); // rx is limelight/theta from odometry input in this case due to different input parameters in main TeleOps
+
+            // not zero alignment is a temporary measure
+            rx = thetaPDF.calculate(rx, Math.atan(3.043/d), FFVal, voltageSensor.getVoltage()); // rx is limelight/theta from odometry input in this case due to different input parameters in main TeleOps
         }
 
         DrivePowers powers = ManualDrive.fieldCentric(

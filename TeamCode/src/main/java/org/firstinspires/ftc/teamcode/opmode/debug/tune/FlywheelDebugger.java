@@ -82,7 +82,7 @@ public class FlywheelDebugger extends OpMode {
             flywheel.wheel.setPower(0);
         }
 
-        drivetrain.drive(x, y, rx, false);
+        drivetrain.drive(x, y, rx, false, 0, 0);
         telemetryControl.getTelemetry().addData("Distance", trajectories.distanceToTarget(drivetrain, 14, 15));
         telemetryControl.getTelemetry().addData("vel", velocity);
         driver.readButtons();

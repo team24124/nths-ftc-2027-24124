@@ -82,9 +82,9 @@ public class PDFAlignmentDebugger extends OpMode {
 
         if (alignToAT) {
             double rotation = pdf.calculate(trajectories.theta(drivetrain, targetX, targetY), 0, FFVal, voltageSensor.getVoltage());
-            drivetrain.drive(x, y, rotation, false);
+            drivetrain.drive(x, y, rotation, false, 0, 0);
         } else {
-            drivetrain.drive(x, y, rx, false);
+            drivetrain.drive(x, y, rx, false, 0, 0);
         }
         prevX = pose.x();
         prevY = pose.y();

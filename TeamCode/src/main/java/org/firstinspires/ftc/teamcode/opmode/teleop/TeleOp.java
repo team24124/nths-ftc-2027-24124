@@ -5,6 +5,8 @@ import static com.pedropathing.ivy.groups.Groups.parallel;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.pedropathing.ivy.Scheduler;
+import com.pedropathing.math.Pose;
+import com.pedropathing.utils.Timer;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
@@ -20,8 +22,10 @@ public class TeleOp extends OpMode {
     private GamepadEx driver, operator;
     private TeleOpTrajectories trajectories;
     private boolean alignToAT = false;
-    private final double targetX = PoseStorage.currentAlliance == PoseStorage.Alliance.BLUE ? 7 : -23; // -4 on both sides because pollen shooter is to the right of robot
+    private final double targetX = PoseStorage.currentAlliance == PoseStorage.Alliance.BLUE ? 14 : -14;
     private double targetY = 14;
+    Timer timer = new Timer();
+    double prevX, prevY = 0;
 
     @Override
     public void init() {
@@ -35,6 +39,8 @@ public class TeleOp extends OpMode {
         driver = new GamepadEx(gamepad1);
         operator = new GamepadEx(gamepad2);
         robot = new Robot(hardwareMap, telemetry);
+
+        timer.reset();
     }
 
     @Override
@@ -102,15 +108,23 @@ public class TeleOp extends OpMode {
         robot.flywheel.periodic();
         robot.drivetrain.periodic();
 
+        double d = trajectories.distanceToTarget(robot.drivetrain, targetX, targetY);
+        Pose pose = robot.drivetrain.getPosition();
+        double dx = targetX - pose.x();double dy = targetY - pose.y();double distanceSquared = (dx * dx) + (dy * dy);
+        double time = timer.seconds();double velX = (pose.x() - prevX) / time;double velY = (pose.y() - prevY) / time;
+        double FFVal = (velX * dx - velY * dy) / distanceSquared;
+
         if (!robot.drivetrain.getDrivetrain().isBusy()) {
             if (alignToAT) {
-                robot.drivetrain.drive(x, y, trajectories.theta(robot.drivetrain, targetX, targetY), true);
+                robot.drivetrain.drive(x, y, trajectories.theta(robot.drivetrain, targetX, targetY), true, d, FFVal);
             } else {
-                robot.drivetrain.drive(x, y, rx, false);
+                robot.drivetrain.drive(x, y, rx, false, d, FFVal);
             }
         }
+        prevX = pose.x();
+        prevY = pose.y();
+        timer.reset();
 
-        double d = trajectories.distanceToTarget(robot.drivetrain, targetX, targetY);
         Scheduler.schedule(robot.flywheel.setVls(d));
 
         Scheduler.execute();
