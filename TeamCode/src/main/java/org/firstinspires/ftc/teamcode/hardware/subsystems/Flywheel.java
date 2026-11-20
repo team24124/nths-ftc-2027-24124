@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.interfaces.SubsystemBase;
 import org.firstinspires.ftc.teamcode.interfaces.TelemetryObservable;
 import org.firstinspires.ftc.teamcode.util.Utilities;
 import org.firstinspires.ftc.teamcode.util.controllers.PIDF;
+import org.firstinspires.ftc.teamcode.util.plotting.InterpLUT;
 
 public class Flywheel implements SubsystemBase, TelemetryObservable {
     public final DcMotorEx wheel;
@@ -21,13 +22,12 @@ public class Flywheel implements SubsystemBase, TelemetryObservable {
     public boolean powered = false;
     public boolean primed = false;
     public PIDF pv = new PIDF();
-    //double[] dists = {40, 50, 60, 70, 80, 90, 100, 150}; // Inches
-    //double[] vels = {1030, 1040, 1080, 1110, 1190, 1250, 1390, 1480}; // Ticks/second max 2800
+    double[] dists = {60, 80}; // Inches
+    double[] vels = {1110, 1230}; // Ticks/second max 2800
     public final VoltageSensor voltageSensor;
-    //public InterpLUT lut = new InterpLUT(dists, vels);
+    public InterpLUT lut = new InterpLUT(dists, vels);
     private double distance = 1;
-    //public double targetVel = lut.get(distance);
-    public double targetVel = 1100;
+    public double targetVel = lut.get(distance);
 
     public Flywheel(HardwareMap hw) {
         wheel = hw.get(DcMotorEx.class, "wheel");
@@ -41,7 +41,7 @@ public class Flywheel implements SubsystemBase, TelemetryObservable {
 
         pv.setPV(0.9, 0.0003);
 
-    //    lut.setExtrapolation(InterpLUT.Extrapolation.LINEAR);
+        lut.setExtrapolation(InterpLUT.Extrapolation.CLAMP);
     }
 
     /**
@@ -50,7 +50,7 @@ public class Flywheel implements SubsystemBase, TelemetryObservable {
      */
     @Override
     public void periodic(){
-        //targetVel = lut.get(distance);
+        targetVel = lut.get(distance);
         if (powered) {
             power(targetVel);
             primed = Utilities.isBetween(wheel.getVelocity(), targetVel -100, targetVel + 50);
@@ -97,7 +97,7 @@ public class Flywheel implements SubsystemBase, TelemetryObservable {
     @Override
     public void updateTelemetry(Telemetry telemetry) {
         telemetry.addData("Flywheel Powered", powered);
-    //    telemetry.addData("Flywheel LUT Value", lut.get(distance));
+        telemetry.addData("Flywheel LUT Value", lut.get(distance));
         telemetry.addData("Flywheel Target Velocity (tps)", targetVel);
         telemetry.addData("Flywheel Velocity (tps)", -wheel.getVelocity());
         telemetry.addData("Flywheel Primed", primed);

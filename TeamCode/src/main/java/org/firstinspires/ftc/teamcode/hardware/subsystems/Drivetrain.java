@@ -16,7 +16,6 @@ import org.firstinspires.ftc.teamcode.interfaces.TelemetryObservable;
 
 public class Drivetrain implements SubsystemBase, TelemetryObservable {
     private final Follower drivetrain;
-    private final ArraySelect<Double> speeds;
     public PIDF thetaPDF = new PIDF();
     public final VoltageSensor voltageSensor;
 
@@ -24,10 +23,7 @@ public class Drivetrain implements SubsystemBase, TelemetryObservable {
         drivetrain = Constants.create(hw);
         drivetrain.setPose(start);
 
-        speeds = new ArraySelect<>(new Double[]{0.5, 1.0});
-        speeds.setSelected(1);
-
-        thetaPDF.setPDF(7, 0.5, 0, 0);
+        thetaPDF.setPDF(3,0.2, 0.5,0);
 
         voltageSensor = hw.get(VoltageSensor.class, "Control Hub");
     }
@@ -36,34 +32,18 @@ public class Drivetrain implements SubsystemBase, TelemetryObservable {
         return drivetrain;
     }
 
-    public ArraySelect<Double> getSpeeds() {
-        return speeds;
-    }
-
-    public void toggleSpeeds() {
-        speeds.setSelected(Math.abs(speeds.getSelectedIndex() - 1));
-    }
-
     public Pose getPosition() {
         return drivetrain.pose();
     }
 
     public void drive(double x, double y, double rx, boolean align, double d, double FFVal){
         if (align) {
-            if (getSpeeds().getSelected() == 1.0) {
-                thetaPDF.setPDF(3,0.2, 0.5,0);
-            } else {
-                thetaPDF.setPDF(7,0.5, 0.5,0);
-            }
-
             // not zero alignment is a temporary measure
-            rx = thetaPDF.calculate(rx, Math.atan(3.043/d), FFVal, voltageSensor.getVoltage()); // rx is limelight/theta from odometry input in this case due to different input parameters in main TeleOps
+            rx = thetaPDF.calculate(rx, -Math.atan(3.043/d), FFVal, voltageSensor.getVoltage()); // rx is limelight/theta from odometry input in this case due to different input parameters in main TeleOps
         }
 
         DrivePowers powers = ManualDrive.fieldCentric(
-                y * speeds.getSelected(),
-                x * speeds.getSelected(),
-                rx * speeds.getSelected(),
+                y, x, rx,
                 drivetrain.pose().heading()
         );
 
@@ -80,7 +60,6 @@ public class Drivetrain implements SubsystemBase, TelemetryObservable {
     public void updateTelemetry(Telemetry telemetry) {
         telemetry.addData("X", drivetrain.pose().x());
         telemetry.addData("Y", drivetrain.pose().y());
-        telemetry.addData("Speed", getSpeeds().getSelected());
         telemetry.addData("Heading (rad)", drivetrain.pose().heading());
         telemetry.addData("Heading (°)", Math.toDegrees(drivetrain.pose().heading()));
     }

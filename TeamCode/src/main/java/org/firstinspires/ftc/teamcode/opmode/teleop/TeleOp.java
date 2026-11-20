@@ -22,6 +22,7 @@ public class TeleOp extends OpMode {
     private GamepadEx driver, operator;
     private TeleOpTrajectories trajectories;
     private boolean alignToAT = false;
+    private boolean extend = false;
     private final double targetX = PoseStorage.currentAlliance == PoseStorage.Alliance.BLUE ? 14 : -14;
     private double targetY = 14;
     Timer timer = new Timer();
@@ -60,7 +61,8 @@ public class TeleOp extends OpMode {
         double rx = -driver.getRightX();
 
         if (driver.wasJustPressed(GamepadKeys.Button.Y)) {
-            robot.drivetrain.toggleSpeeds();
+            extend = !extend;
+            Scheduler.schedule(robot.intake.extendWedge(extend));
         }
 
         if (driver.wasJustPressed(GamepadKeys.Button.A)) {

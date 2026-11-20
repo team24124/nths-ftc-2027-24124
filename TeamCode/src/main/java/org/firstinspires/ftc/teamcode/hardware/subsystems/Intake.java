@@ -24,6 +24,7 @@ public class Intake implements SubsystemBase, TelemetryObservable {
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         wedge = hw.get(Servo.class, "wedge");
+        wedge.setPosition(0.5);
     }
 
     public Command runIntake() {
@@ -54,12 +55,8 @@ public class Intake implements SubsystemBase, TelemetryObservable {
         return intake.getVelocity();
     }
 
-    public Command extendWedge() {
-        return instant(() -> wedge.setPosition(1));
-    }
-
-    public Command retractWedge() {
-        return instant(() -> wedge.setPosition(0.7));
+    public Command extendWedge(boolean extend) {
+        return instant(() -> wedge.setPosition((extend) ? 0.93 : 0.5));
     }
 
     @Override
